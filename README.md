@@ -41,3 +41,10 @@ added application.json file for vscode user, you can use it to debug and run the
   }
 }
 ```
+
+
+
+
+## How the app with flow
+- [ ] Added CD/CI flow 
+- [ ] created UI
