@@ -1,0 +1,26 @@
+name: Main Testing
+on: 
+  push:
+    branches:
+    - main
+
+jobs:
+  test:
+    name: Test on the main file
+    runs-on: ubuntu-latest
+    steps: 
+    - name: Checkout code
+      uses: actions/checkout@v2
+    - name: Set up flutter
+      uses: subosita/flutter-action@v2
+      with:
+        flutter-version: 3.13.0
+    - name: Just for checking the device etc
+      run: flutter doctor
+    - name: get all the dependecies  
+      run: flutter pub get
+    - name: Run Test
+      run : flutter test
+          
+      
+    
