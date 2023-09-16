@@ -1,0 +1,86 @@
+name: Development Workflow
+
+on:
+  push:
+    branches:
+      - development
+
+jobs:
+  # Test job runs tests for the Flutter app
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+      - name: Set up Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.13.0' # Update to your desired Flutter version
+      - name: Get dependencies
+        run: flutter pub get
+      - name: Run tests
+        run: flutter test
+
+  # Matrix defines the operating systems and targets for the build jobs
+  matrix:
+    os:
+      - ubuntu-latest
+      - macos-latest
+      - windows-latest
+    target:
+      - android
+      - ios
+      - linux
+      - macos
+      - windows
+
+  # Build jobs
+  build:
+    needs: test
+    runs-on: ${{ matrix.os }}
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+      - name: Set up Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.13.0' # Update to your desired Flutter version
+      - name: Get dependencies
+        run: flutter pub get
+      - name: Build for ${{ matrix.target }}
+        if: success() && github.event_name == 'push'
+        run: |
+          if [ ${{ matrix.target }} == 'android' ]; then
+            flutter build apk
+            # flutter build appbundle
+          elif [ ${{ matrix.target }} == 'ios' ]; then
+            flutter build ios
+          elif [ ${{ matrix.target }} == 'linux' ]; then
+            flutter build linux
+          elif [ ${{ matrix.target }} == 'macos' ]; then
+            flutter build macos
+          elif [ ${{ matrix.target }} == 'windows' ]; then
+            flutter build windows
+          fi
+
+  # Create GitHub Releases
+  create_release:
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Create Release
+        if: success() && github.event_name == 'push'
+        uses: softprops/action-gh-release@v1
+        with:
+          files: |
+            build/app/outputs/flutter-apk/app-release.apk
+            build/app/outputs/flutter-apk/app-release.aab
+            build/ios/Runner.app.zip
+            build/linux/release/bundle
+            build/macos/Build/Products/Release/YourAppName.app
+            build/windows/Runner/Release/runner.exe
+          title: Release ${{ github.ref_name }}
+          body: |
+            Release notes go here
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
