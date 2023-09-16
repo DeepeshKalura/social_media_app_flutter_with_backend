@@ -11,10 +11,10 @@ jobs:
     steps: 
     - name: Checkout code
       uses: actions/checkout@v3
-    - name: Set up flutter
-      uses: subosita/flutter-action@v2
+    - uses: subosito/flutter-action@v2
       with:
         flutter-version: 3.13.0
+        channel: 'stable'
     - name: Just for checking the device etc
       run: flutter doctor
     - name: get all the dependecies  
